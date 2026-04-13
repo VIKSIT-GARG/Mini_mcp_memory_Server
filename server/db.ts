@@ -1,4 +1,4 @@
-import Database from "better-sqlite3"; 
+import Database from "better-sqlite3";
 import { mkdirSync } from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -20,7 +20,7 @@ let _db: Database.Database | null=  null ;
 export function getDb(): Database.Database {
     if(!_db){
         _db = new Database(DB_PATH);
-        _db.pragma("jounral_mode = WAL");
+        _db.pragma("journal_mode = WAL");
         _db.pragma("foreign_keys = ON");
         initSchema(_db);
     }
