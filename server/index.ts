@@ -4,13 +4,26 @@ import express from "express";
 import process from "process";
 import cors from "cors";
 import { memoryRouter } from "./routes.js";
+import { fileURLToPath } from "url";
+import { registerMemoryTools } from "./mcp-tools.js";
+import { getDb } from "./db.js";
+import path from "path";
+
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const isStdio = process.argv.includes("--stdio");
 const PORT = parseInt(process.env.PORT ?? "5172", 10);
 
+getDb(); // initialize db before registering tools, so that tools can use db functions when called by model.
+
 if (isStdio) {
   // In MCP mode the process speaks over stdio instead of starting an HTTP server.
   const server = new McpServer({ name: "mini-memory", version: "1.0.0" });
+
+  registerMemoryTools(server); // register mcp tools related to memory management, this is called from indexedDB.ts for both stdio and hhtp ModelHintSchema, so that tools are available in both modes.
+
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
   process.stderr.write("mini-memory MCP server is running in stdio mode.\n");
